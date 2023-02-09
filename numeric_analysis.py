@@ -41,16 +41,21 @@ def get_lagranges(x_arr: Iterable[float]) -> Iterable[Iterable[float]]:
 
 
 def interpol_poly(x_arr: Iterable[float], y_arr: Iterable[float]) -> List[float]:
-    """Finds the interpolating polynomial of a set of data points to a smallest possible degree
+    """Finds and displays the interpolating polynomial of a set of data points to a smallest possible degree
 
     Args:
         x_arr (Iterable[float]): The set of given data points that represent x_i
         y_arr (Iterable[float]): The set of given data points that represent y_i
 
     Returns:
-        List[float]: The coefficients of the polynomial
+        Iterable[Iterable[float]]: A list of Iterables, the 0th value is a numerator coefficient, the 1... n-1 values are the 'a'  in (x-a) pairs, the final value is the denominator
     """
     lagranges = get_lagranges(x_arr)
+    poly = []
+    for i, lag in enumerate(lagranges):
+        lag.reverse()
+        lag.append(y_arr[i])
+        lag.reverse()
 
 
 def convert_poly_to_str(coeffs: Iterable[float]) -> str:
@@ -75,3 +80,4 @@ if __name__ == "__main__":
     print(f"Horner's algorithm test for 3x^2 -2x + 10 at x=3. Should return 31")
     print(horner((3, -2, 10), 3))
     print(convert_poly_to_str((4, 3, -2, 10)))
+    print(interpol_poly([-1, 0, 1], [-10, 1, 10]))
