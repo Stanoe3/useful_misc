@@ -18,6 +18,21 @@ class Lagrange:
         ret_str += f"\nx values: {self.x_array}"
         return ret_str
 
+    def evaluate(self, eval_point: float) -> float:
+        """Evaluates the Lagrange function at a point
+
+        Args:
+            eval_point (float): The point at which to evaluate
+
+        Returns:
+            float: The result of the evaluation
+        """
+        product = self.numerator
+        for x_val in self.x_array:
+            product *= (eval_point - x_val)
+        product /= self.denominator
+        return product
+
 
 def horner(polynomial: Iterable[float], x_val: float) -> float:
     """Calculates the value of a polynomial at a specific input
@@ -46,13 +61,16 @@ def get_lagranges(x_arr: Iterable[float]) -> Iterable[Lagrange]:
         Iterable[Iterable[float]]: A list of Iterables, the 0... n-1 values are the 'a'
         in (x-a) pairs, the final value is the denominator
     """
+
     lagrange_list = []
     for i, _ in enumerate(x_arr):
+        new_arr = []
         denom_product = 1
         for j, _ in enumerate(x_arr):
             if j != i:
+                new_arr.append(x_arr[j])
                 denom_product *= x_arr[i] - x_arr[j]
-        lagrange_list.append(Lagrange(x_arr, denom_product))
+        lagrange_list.append(Lagrange(new_arr, denom_product))
     return lagrange_list
 
 
@@ -110,6 +128,8 @@ def generate_denominator(lagrange_list: Iterable[Lagrange], seperator: str) -> s
     seperator = seperator.strip().split(" + ")
     for i, lagrange in enumerate(lagrange_list):
         denominator += str(lagrange.denominator).center(len(seperator[i]), " ")
+        if i != len(lagrange_list) - 1:
+            denominator += "   "
     return denominator
 
 
@@ -142,7 +162,7 @@ def interpol_poly(x_arr: Iterable[float], y_arr: Iterable[float]) -> List[Lagran
     lagranges = get_lagranges(x_arr)
     for i, lagrange in enumerate(lagranges):
         lagrange.numerator = y_arr[i]
-    display_lagranges_to_terminal(lagranges)
+    return lagranges
 
 
 def convert_poly_to_str(coeffs: Iterable[float]) -> str:
@@ -163,6 +183,24 @@ def convert_poly_to_str(coeffs: Iterable[float]) -> str:
         poly_str += f"{coeff}x^{len(coeffs)-(i+1)} +"
 
 
+def evaluate_lagranges(lagrange_list: Iterable[Lagrange], eval_point: float) -> float:
+    """Evaluates a list of Lagrange functions at a given point
+
+    Args:
+        lagrange_list (Iterable[Lagrange]): A list of Lagrange functions for which to evaluate
+        eval_point (float): The point at which to evaluate
+
+    Returns:
+        float: The value of the evaluation
+    """
+    poly_sum = 0
+    for lagrange in lagrange_list:
+        poly_sum += lagrange.evaluate(eval_point)
+    return poly_sum
+
+
 if __name__ == "__main__":
-    print(convert_poly_to_str((4, 3, -2, 10)))
-    interpol_poly([-1, 0, 1], [-10, 1, 10])
+    lagrange_set = interpol_poly([0, 1, 2, 3, 5, 6, 7, 8, 9, 10, 11], [
+                                 69, 50, 61, 51, 67, 65, 79, 74, 77, 78, 78])
+    # display_lagranges_to_terminal(lagrange_set)
+    print(evaluate_lagranges(lagrange_set, 4))
